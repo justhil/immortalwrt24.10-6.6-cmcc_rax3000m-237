@@ -25,3 +25,5 @@ rm -rf feeds/luci/themes/luci-theme-openwrt-2020
 
 # mentohust 额外优化（可选，强制编译）
 sed -i 's/DEPENDS.*/DEPENDS+= +libpcap/' package/mentohust/Makefile
+# ==================== 修改默认 LAN IP 为 192.168.2.1（网关） ====================
+sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/etc/config/network

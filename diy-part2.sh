@@ -10,20 +10,24 @@
 # Description: OpenWrt DIY script part 2 (After Update feeds)
 #
 
-# Modify default IP
-sudo apt install libfuse-dev
+set -e
+
+# Passwall / sing-box 依赖的新 golang feeds，保持与 sbwml 24.x 一致。
 rm -rf feeds/packages/lang/golang
-git clone https://github.com/sbwml/packages_lang_golang -b 24.x feeds/packages/lang/golang
+git clone --depth=1 -b 24.x https://github.com/sbwml/packages_lang_golang feeds/packages/lang/golang
+
 # ==================== 性能优化 + 默认主题 ====================
 
-# 强制默认 Argon 主题（性能最高）
+# 强制默认 Argon 主题。
 sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
 
-# 清理多余主题（节省空间，性能优先）
+# 清理多余主题，节省镜像空间。
 rm -rf feeds/luci/themes/luci-theme-material
 rm -rf feeds/luci/themes/luci-theme-openwrt-2020
 
-# mentohust 额外优化（可选，强制编译）
-sed -i 's/DEPENDS.*/DEPENDS+= +libpcap/' package/mentohust/Makefile
-# ==================== 修改默认 LAN IP 为 192.168.2.1（网关） ====================
-sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/etc/config/network
+# mentohust 依赖 libpcap，避免不同仓库版本下漏依赖。
+if [ -f package/mentohust/Makefile ] && ! grep -q 'libpcap' package/mentohust/Makefile; then
+    sed -i '/^  DEPENDS:=/ s/$/ +libpcap/' package/mentohust/Makefile
+fi
+
+# 默认 LAN IP 由 .config 中的 CONFIG_TARGET_PREINIT_IP 控制。

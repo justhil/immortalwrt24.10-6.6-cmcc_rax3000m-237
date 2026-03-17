@@ -14,3 +14,14 @@
 sudo apt install libfuse-dev
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/sbwml/packages_lang_golang -b 24.x feeds/packages/lang/golang
+# ==================== 性能优化 + 默认主题 ====================
+
+# 强制默认 Argon 主题（性能最高）
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/modules/luci-base/root/etc/config/luci
+
+# 清理多余主题（节省空间，性能优先）
+rm -rf feeds/luci/themes/luci-theme-material
+rm -rf feeds/luci/themes/luci-theme-openwrt-2020
+
+# mentohust 额外优化（可选，强制编译）
+sed -i 's/DEPENDS.*/DEPENDS+= +libpcap/' package/mentohust/Makefile
